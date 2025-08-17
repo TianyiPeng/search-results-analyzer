@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results Relevance Analyzer</title>
+    <meta name="description" content="Interactive web application to analyze search result relevance for Wayfair dataset">
+    <meta name="keywords" content="search, relevance, analysis, wayfair, e-commerce">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="css/style.css" rel="stylesheet">
+    
+    <!-- Open Graph meta tags for social sharing -->
+    <meta property="og:title" content="Search Results Relevance Analyzer">
+    <meta property="og:description" content="Interactive analysis of search result quality with 500 queries and 25,000 products">
+    <meta property="og:type" content="website">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
+</head>
+<body>
+    <div class="container-fluid">
+        <header class="py-3 mb-4 border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-search me-2"></i>
+                    Search Results Relevance Analyzer
+                </h1>
+                <div class="text-muted small">
+                    <i class="fas fa-database me-1"></i>
+                    500 Queries • 25,000 Results
+                </div>
+            </div>
+        </header>
+
+        <!-- Loading indicator -->
+        <div id="loadingIndicator" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3 text-muted">Loading search analysis data...</p>
+        </div>
+
+        <!-- Main content (hidden until data loads) -->
+        <div id="mainContent" class="row" style="display: none;">
+            <!-- Sidebar with query list -->
+            <div class="col-md-4 col-lg-3">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-list me-2"></i>
+                            Queries
+                        </h5>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown">
+                                Sort: Worst First
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" data-sort="worst">
+                                    <i class="fas fa-arrow-up me-2"></i>Worst First
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" data-sort="best">
+                                    <i class="fas fa-arrow-down me-2"></i>Best First
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" data-sort="alphabetical">
+                                    <i class="fas fa-sort-alpha-down me-2"></i>Alphabetical
+                                </a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="search-box p-3 border-bottom">
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input type="text" class="form-control" id="querySearch" placeholder="Search queries...">
+                            </div>
+                        </div>
+                        <div id="queryList" class="query-list">
+                            <div class="text-center p-3">
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics Card -->
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-chart-bar me-2"></i>
+                            Overall Statistics
+                        </h6>
+                    </div>
+                    <div class="card-body" id="statsContainer">
+                        <div class="text-center">
+                            <div class="spinner-border spinner-border-sm" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Legend Card -->
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-palette me-2"></i>
+                            Relevance Legend
+                        </h6>
+                    </div>
+                    <div class="card-body small">
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="relevance-badge relevance-excellent me-2">90%+</span>
+                            <span>Excellent</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="relevance-badge relevance-good me-2">70%+</span>
+                            <span>Good</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="relevance-badge relevance-moderate me-2">50%+</span>
+                            <span>Moderate</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="relevance-badge relevance-poor me-2">&lt;50%</span>
+                            <span>Poor</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main content area -->
+            <div class="col-md-8 col-lg-9">
+                <div id="resultsContainer">
+                    <div class="text-center p-5">
+                        <div class="mb-4">
+                            <i class="fas fa-arrow-left fa-3x text-muted mb-3"></i>
+                            <h4 class="text-muted">Select a query to view results</h4>
+                            <p class="text-muted">Choose a query from the list on the left to see its search results and relevance analysis.</p>
+                        </div>
+                        
+                        <!-- Quick insights -->
+                        <div class="row g-3 mt-4">
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-trophy text-warning fa-2x mb-2"></i>
+                                        <h6>Best Performing</h6>
+                                        <small class="text-muted">100% relevance queries for reference</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-exclamation-triangle text-danger fa-2x mb-2"></i>
+                                        <h6>Needs Attention</h6>
+                                        <small class="text-muted">Queries with poor relevance (sorted first)</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div class="modal fade" id="errorModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                        Error Loading Data
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Failed to load the search analysis data. Please check:</p>
+                    <ul>
+                        <li>Your internet connection</li>
+                        <li>That the data files are accessible</li>
+                        <li>Browser console for detailed error messages</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="location.reload()">
+                        <i class="fas fa-refresh me-2"></i>Retry
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="js/app.js"></script>
+</body>
+</html>
