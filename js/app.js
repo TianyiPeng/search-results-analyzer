@@ -318,13 +318,18 @@ class SearchAnalyzer {
         const relevanceClass = result.is_relevant ? 'relevant' : 'not-relevant';
         const relevanceText = result.is_relevant ? 'Relevant' : 'Not Relevant';
         const relevanceIcon = result.is_relevant ? 'fa-check-circle' : 'fa-times-circle';
-        const imageUrl = result.imageUrl || 'https://via.placeholder.com/300x200?text=No+Image';
+        
+        // Fix mixed content by converting HTTP to HTTPS
+        let imageUrl = result.imageUrl || 'https://via.placeholder.com/300x200?text=No+Image';
+        if (imageUrl.startsWith('http://')) {
+            imageUrl = imageUrl.replace('http://', 'https://');
+        }
         
         return `
             <div class="product-card">
                 <img src="${imageUrl}" alt="${this.escapeHtml(result.product_name)}" 
                      class="product-image" 
-                     onerror="this.src='https://via.placeholder.com/300x200?text=No+Image+Available&bg=f8f9fa&color=6c757d'"
+                     onerror="this.src='https://via.placeholder.com/300x200?text=No+Image+Available&bg=f8f9fa&color=6c757d'; console.log('Image failed to load:', '${imageUrl}');"
                      loading="lazy">
                 <div class="product-info">
                     <div class="product-name" title="${this.escapeHtml(result.product_name)}">
