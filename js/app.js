@@ -243,8 +243,7 @@ class SearchAnalyzer {
     }
 
     renderResults(data) {
-        console.log('renderResults called with data:', data);
-        console.log('Number of results:', data.results ? data.results.length : 0);
+
         
         const container = document.getElementById('resultsContainer');
         
@@ -302,10 +301,7 @@ class SearchAnalyzer {
                 <p class="text-muted small">Sorted by search score (highest first)</p>
             </div>
             <div class="results-grid">
-                ${data.results.map((result, index) => {
-                    console.log('Rendering product card for result:', index, result);
-                    return this.renderProductCard(result, index);
-                }).join('')}
+                ${data.results.map((result, index) => this.renderProductCard(result, index)).join('')}
             </div>
         `;
 
@@ -321,8 +317,7 @@ class SearchAnalyzer {
     }
 
     renderProductCard(result, index) {
-        console.log('renderProductCard called for:', result.product_name, 'with index:', index);
-        
+
         const relevanceClass = result.is_relevant ? 'relevant' : 'not-relevant';
         const relevanceText = result.is_relevant ? 'Relevant' : 'Not Relevant';
         const relevanceIcon = result.is_relevant ? 'fa-check-circle' : 'fa-times-circle';
